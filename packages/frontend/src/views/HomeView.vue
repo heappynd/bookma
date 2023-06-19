@@ -79,7 +79,7 @@ function cancel() {
       </div>
     </template>
 
-    <el-table :data="data?.data?.data" v-loading="isLoading || isFetching" max-height="calc(100vh - 260px)">
+    <el-table :data="data?.data?.data" v-loading="isLoading" max-height="calc(100vh - 260px)">
       <el-table-column prop="icon" label="图标" width="60">
         <template #default="{ row }">
           <img v-if="row.icon" :src="row.icon" alt="" width="16" />
