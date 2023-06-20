@@ -1,8 +1,9 @@
+import { getDirsPromise } from '../../stores'
+
 export default defineEventHandler(async (event) => {
-  const storage = useStorage('db')
-  const dirs = await storage.getItem('dirs');
+  const dirs = await getDirsPromise()
   return {
     code: 200,
     data: dirs,
-  };
+  }
 })

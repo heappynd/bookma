@@ -52,8 +52,8 @@
   </ElContainer>
 
   <ClientOnly>
-    <ElDialog v-model="visible" title="新建文件夹" @closed="close">
-      <ElForm ref="formRef" :model="form" label-width="120px" :rules="rules">
+    <ElDialog v-model="visible" title="新建文件夹" :width="500" @closed="close">
+      <ElForm ref="formRef" :model="form" label-width="80px" :rules="rules">
         <ElFormItem label="文件名" prop="name">
           <ElInput v-model="form.name" />
         </ElFormItem>
@@ -67,57 +67,57 @@
 </template>
 
 <script lang="ts" setup>
-import { Delete } from "@element-plus/icons-vue";
-import type { FormInstance, FormRules } from "element-plus";
-import "normalize.css/normalize.css";
+import { Delete } from '@element-plus/icons-vue'
+import type { FormInstance, FormRules } from 'element-plus'
+import 'normalize.css/normalize.css'
 
-const { data: dirs, refresh } = useFetch("/api/dirs");
+const { data: dirs, refresh } = useFetch('/api/dirs')
 
-const visible = ref(false);
-const current = useCurrent();
-const formRef = ref<FormInstance>();
+const visible = ref(false)
+const current = useCurrent()
+const formRef = ref<FormInstance>()
 const form = reactive({
-  name: "",
-});
+  name: '',
+})
 const rules = reactive<FormRules>({
   name: [
-    { required: true, message: "Please input Activity name", trigger: "blur" },
-    { min: 3, max: 5, message: "Length should be 3 to 5", trigger: "blur" },
+    { required: true, message: 'Please input Activity name', trigger: 'blur' },
+    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
   ],
-});
+})
 
 const add = () => {
   if (!formRef.value) {
-    return;
+    return
   }
   formRef.value.validate().then(() => {
-    $fetch("/api/dirs", { method: "POST", body: form }).then(() => {
-      ElMessage.success("新增成功");
-      visible.value = false;
-      refresh();
-    });
-  });
-};
+    $fetch('/api/dirs', { method: 'POST', body: form }).then(() => {
+      ElMessage.success('新增成功')
+      visible.value = false
+      refresh()
+    })
+  })
+}
 const del = (id: string) => {
-  $fetch(`/api/dirs/${id}`, { method: "DELETE" }).then(() => {
-    ElMessage.success("删除成功");
-    refresh();
-  });
-};
+  $fetch(`/api/dirs/${id}`, { method: 'DELETE' }).then(() => {
+    ElMessage.success('删除成功')
+    refresh()
+  })
+}
 
 const cancel = () => {
-  visible.value = false;
-};
+  visible.value = false
+}
 
 const close = () => {
-  console.log("close");
-  formRef.value?.resetFields();
-};
+  console.log('close')
+  formRef.value?.resetFields()
+}
 
 const select = (index: string) => {
-  console.log(index);
-  current.value = index;
-};
+  console.log(index)
+  current.value = index
+}
 </script>
 
 <style scoped>
