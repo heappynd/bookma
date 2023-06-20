@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
     id: nanoid(),
     name: body.name,
   };
-  const _dirs = [...dirs, dir]
-  await storage.setItem('dirs', _dirs)
+  dirs.push(dir)
+  await storage.setItem('dirs', dirs)
   return ({
     code: 200,
     data: dir,

@@ -1,5 +1,3 @@
-import db from "../../db";
-
 export default defineEventHandler(async (event) => {
   const storage = useStorage('db')
   const dirs = await storage.getItem('dirs') || [];

@@ -1,5 +1,3 @@
-
-
 export default defineEventHandler(async (event) => {
   const storage = useStorage('db')
   const marks = await storage.getItem('marks') || [];
