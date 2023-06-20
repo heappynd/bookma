@@ -19,7 +19,7 @@ type Data = {
   dirs: Dir[]
 }
 
-const adapter = new JSONFile<Data>('db.json');
+const adapter = new JSONFile<Data>('/tmp/db.json');
 const db = new Low<Data>(adapter, { marks: [], dirs: [] });
 
 export default db
