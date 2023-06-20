@@ -575,6 +575,13 @@
       "icon": "https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web//static/favicons/favicon-32x32.png",
       "text": "推荐 - 文章 - 掘金",
       "dir_id": "6b4f22d3-fd72-4feb-a09e-b1fb0aa6e9c5"
+    },
+    {
+      "id": "73",
+      "href": "https://www.deepin.org/zh/installation/",
+      "add_date": 1687229281149,
+      "icon": "https://www.deepin.org/wp-content/uploads/2016/12/logo.png",
+      "text": "如何安装 – 深度科技社区"
     }
   ],
   "dirs": [
