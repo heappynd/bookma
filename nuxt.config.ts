@@ -3,6 +3,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@element-plus/nuxt"],
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    storage: {
+      db: {
+        driver: 'vercelKV',
+      },
+    }
   }
 })

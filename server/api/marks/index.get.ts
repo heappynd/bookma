@@ -1,10 +1,6 @@
-import db from "../../db";
-
 export default defineEventHandler(async (event) => {
-  await db.read();
-
-  const { marks } = db.data
-  await db.write()
+  const storage = useStorage('db')
+  const marks = await storage.getItem('marks') || [];
   const query = getQuery(event)
   const dir_id = query.dir_id
   if (dir_id) {

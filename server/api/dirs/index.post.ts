@@ -1,16 +1,16 @@
-import db from "../../db";
 import { nanoid } from "nanoid";
 
 export default defineEventHandler(async (event) => {
+  const storage = useStorage('db')
   const body = await readBody(event)
-  await db.read();
-  const dirs = db.data.dirs;
+  const dirs = await storage.getItem('dirs') ?? [];
+  console.log('dirs', dirs)
   const dir = {
     id: nanoid(),
     name: body.name,
   };
-  dirs.push(dir);
-  await db.write();
+  const _dirs = [...dirs, dir]
+  await storage.setItem('dirs', _dirs)
   return ({
     code: 200,
     data: dir,
