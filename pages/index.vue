@@ -1,131 +1,240 @@
-<script setup lang="ts">
-import dayjs from 'dayjs'
-import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
+<template>
+  <div>
+    <div class="d-container">
+      <div style="display: flex">
+        <div
+          v-for="dir in dirs"
+          :key="dir.id"
+          :class="['d-item', { 'd-item--active': dir.id === form2.dir_id }]"
+          @click="form2.dir_id = dir.id"
+          @drop="(event) => onDrop(event, dir.id)"
+          @dragover="onDragover"
+        >
+          <ElSpace>
+            <span>{{ dir.name }}</span>
+            <ElIcon style="cursor: pointer" @click="delDir(dir.id)">
+              <CloseBold />
+            </ElIcon>
+          </ElSpace>
+        </div>
+      </div>
+      <ElIcon style="cursor: pointer" @click="visible = true">
+        <Plus />
+      </ElIcon>
+    </div>
 
-const current = useCurrent()
-const { data, refresh, pending } = useFetch(
-  () => `/api/marks?dir_id=${current.value}`
-)
-const dialogVisible = ref(false)
-const ruleFormRef = ref<FormInstance>()
-const ruleForm = reactive({
-  href: '',
-  dir_id: current,
-})
-const rules = reactive<FormRules>({
-  href: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { type: 'url', message: '请输入URL', trigger: 'blur' },
-  ],
-})
-const loading = ref(false)
-const submitForm = () => {
-  ruleFormRef.value?.validate().then(() => {
-    loading.value = true
-    $fetch('/api/marks', { method: 'POST', body: ruleForm })
-      .then(() => {
-        refresh()
-        ElMessage.success('新增成功')
-        ruleFormRef.value?.resetFields()
-        dialogVisible.value = false
-        loading.value = false
-      })
-      .catch((err) => {
-        ElMessage.error('新增失败')
-        loading.value = false
-      })
-  })
-}
-const del = async (id: string) => {
-  await $fetch(`/api/marks/${id}`, { method: 'DELETE' })
-  refresh()
-  ElMessage.success('删除成功')
-}
+    <ElButton
+      style="position: fixed; z-index: 999; bottom: 100px; right: 100px"
+      type="primary"
+      @click="visible2 = true"
+    >
+      添加网页...
+    </ElButton>
 
+    <!-- <ElScrollbar v-loading="loading" height="88vh"> -->
+    <ul v-if="marks.length" class="m-container">
+      <li
+        class="m-item"
+        v-for="mark in marks"
+        :key="mark.id"
+        :draggable="true"
+        @dragstart="(event) => onDragstart(event, mark)"
+      >
+        <a :href="mark.href" target="_blank">{{ mark.text }}</a>
+        <ElIcon @click="del2(mark.id)">
+          <CloseBold />
+        </ElIcon>
+      </li>
+    </ul>
+    <ElEmpty v-else></ElEmpty>
+    <!-- </ElScrollbar> -->
+
+    <ClientOnly>
+      <ElDialog v-model="visible" title="新建文件夹" :width="500">
+        <ElForm ref="formRef" :model="form" label-width="80px">
+          <ElFormItem
+            label="名称"
+            prop="name"
+            :rules="[{ required: true, trigger: 'change' }]"
+          >
+            <ElInput v-model="form.name" />
+          </ElFormItem>
+        </ElForm>
+        <template #footer>
+          <ElButton @click="cancel"> 取消 </ElButton>
+          <ElButton type="primary" @click="ok"> 保存 </ElButton>
+        </template>
+      </ElDialog>
+    </ClientOnly>
+
+    <ClientOnly>
+      <ElDialog v-model="visible2" title="修改书签" :width="500">
+        <ElForm ref="formRef2" :model="form2" label-width="80px">
+          <ElFormItem
+            label="网址"
+            prop="href"
+            :rules="[{ required: true, trigger: 'change' }]"
+          >
+            <ElInput v-model="form2.href" />
+          </ElFormItem>
+        </ElForm>
+
+        <template #footer>
+          <ElButton @click="cancel2"> 取消 </ElButton>
+          <ElButton type="primary" @click="ok2"> 保存 </ElButton>
+        </template>
+      </ElDialog>
+    </ClientOnly>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { Mark } from "~/server/stores";
+import { CloseBold, Plus } from "@element-plus/icons-vue";
+import type { FormInstance } from "element-plus";
+
+const { data, refresh } = useFetch("/api/dirs");
+const dirs = computed(() => data.value?.data ?? []);
+const delDir = async (id: any) => {
+  await $fetch(`/api/dirs/${id}`, {
+    method: "DELETE",
+  });
+  refresh();
+};
+
+const marks = ref<Mark[]>([]);
+const loading = ref(false);
+const getData = async () => {
+  loading.value = true;
+  const { data } = await $fetch(`/api/marks`, {
+    params: { dir_id: form2.dir_id },
+  });
+  marks.value = data;
+  loading.value = false;
+};
+
+const form = reactive({ name: "" });
+const visible = ref(false);
+const formRef = ref<FormInstance | null>(null);
+const ok = async () => {
+  if (!formRef.value) return;
+  try {
+    await formRef.value.validate();
+    await $fetch("/api/dirs", { method: "POST", body: form });
+    visible.value = false;
+    await refresh();
+    ElMessage.success("新建文件夹成功");
+  } catch (error) {}
+};
 const cancel = () => {
-  ruleFormRef.value?.resetFields()
-  dialogVisible.value = false
-}
+  visible.value = false;
+};
 
-const open = () => {
-  dialogVisible.value = true
-}
+// 2
+const form2 = reactive({
+  dir_id: "",
+  href: "",
+});
+const visible2 = ref(false);
+const formRef2 = ref<FormInstance | null>(null);
+const ok2 = async () => {
+  if (!formRef2.value) return;
+  try {
+    await formRef2.value.validate();
+    await $fetch("/api/marks", { method: "POST", body: form2 });
+    visible2.value = false;
+    await getData();
+    ElMessage.success("修改书签成功");
+  } catch (error) {}
+};
+const cancel2 = () => {
+  visible2.value = false;
+};
+const del2 = async (id: string) => {
+  await $fetch(`/api/marks/${id}`, { method: "DELETE" });
+  getData();
+};
+watch(
+  () => form2.dir_id,
+  () => getData()
+);
+
+// to
+const onDrop = async (event: DragEvent, dir_id: string) => {
+  console.log("drop");
+  event.preventDefault();
+  const dt = event.dataTransfer;
+  if (dt) {
+    console.log(dt);
+    const data = dt.getData("text/plain");
+    console.log("data", data);
+    await $fetch("/api/marks/transfer", {
+      method: "POST",
+      body: {
+        dir_id,
+        href: data,
+      },
+    });
+    ElMessage.success("修改成功");
+    getData();
+  }
+};
+const onDragover = (event: DragEvent) => {
+  const dt = event.dataTransfer;
+  if (dt) {
+    dt.dropEffect = "copy";
+    event.preventDefault();
+  }
+};
+
+// from
+const onDragstart = (event: DragEvent, mark: Mark) => {
+  event.dataTransfer?.setData("text/plain", mark.href);
+};
 </script>
 
-<template>
-  <ElCard>
-    <template #header>
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <span>Total {{ data?.data.length }}</span>
+<style lang="scss" scoped>
+.m-container {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  .m-item {
+    background: ghostwhite;
+    padding: 15px 20px;
+    margin: 8px 0;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-        <ElButton type="primary" :disabled="false" @click="open">
-          新增
-        </ElButton>
-      </div>
-    </template>
+    a {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-decoration: none;
+    }
 
-    <ElTable
-      v-loading="pending"
-      :data="data?.data"
-      max-height="calc(100vh - 260px)"
-    >
-      <ElTableColumn prop="icon" label="图标" width="60">
-        <template #default="{ row }">
-          <img v-if="row.icon" :src="row.icon" alt="" width="16" />
-          <span v-else>-</span>
-        </template>
-      </ElTableColumn>
-      <ElTableColumn prop="text" label="名称" show-overflow-tooltip>
-        <template #default="{ row }">
-          <ElLink :underline="false" :href="row.href" target="_blank">
-            {{ row.text }}
-          </ElLink>
-        </template>
-      </ElTableColumn>
+    .el-icon {
+      cursor: pointer;
+    }
+  }
+}
 
-      <ElTableColumn prop="add_date" label="修改日期" sortable width="200">
-        <template #default="{ row }">
-          {{ dayjs(row.add_date).format('YYYY-MM-DD HH:mm:ss') }}
-        </template>
-      </ElTableColumn>
-      <ElTableColumn label="操作" width="120">
-        <template #default="{ row }">
-          <ElButton size="small" type="danger" @click="del(row.id)"
-            >删除</ElButton
-          >
-        </template>
-      </ElTableColumn>
-    </ElTable>
-  </ElCard>
+.d-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .d-item {
+    line-height: 38px;
+    padding: 0 20px;
+    margin-right: 8px;
+    border-radius: 20px;
+    border: 1px solid saddlebrown;
 
-  <ClientOnly>
-    <ElDialog v-model="dialogVisible" title="Tips" :width="500">
-      <ElForm
-        ref="ruleFormRef"
-        :model="ruleForm"
-        :rules="rules"
-        label-width="80px"
-      >
-        <ElFormItem label="Href" prop="href">
-          <ElInput v-model="ruleForm.href" />
-        </ElFormItem>
-      </ElForm>
-
-      <template #footer>
-        <span>
-          <ElButton @click="cancel">Cancel</ElButton>
-          <ElButton type="primary" @click="submitForm" :loading="loading">
-            Confirm
-          </ElButton>
-        </span>
-      </template>
-    </ElDialog>
-  </ClientOnly>
-</template>
+    &--active {
+      background: saddlebrown;
+      color: #fff;
+    }
+  }
+}
+</style>

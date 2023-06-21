@@ -5,8 +5,8 @@ export default defineEventHandler(async (event) => {
   const storage = useStorage('db')
   const m = []
   for (const mark of marks) {
-    const { title } = await getWebsiteTitle(mark.href)
-    m.push({ ...mark, text: title })
+    const { title, icon } = await getWebsiteTitle(mark.href)
+    m.push({ ...mark, text: title, icon })
   }
   await storage.setItem('marks', m)
 

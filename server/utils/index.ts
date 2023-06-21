@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio'
 
 type WebsiteTitle = {
   title: string
+  icon: string | null
 }
 
 export function getWebsiteTitle(url: string) {
@@ -13,10 +14,14 @@ export function getWebsiteTitle(url: string) {
         const $ = cheerio.load(response.data)
         const title = $('title').first().text()
         if (!title) console.log('未获取', url)
-        resolve({ title: title || url })
+        const href = $("link[rel=icon]").attr('href')
+        const base = new URL(url).origin
+        const iconUrl = href ? new URL(href, base).href : null
+        console.log('iconUrl', iconUrl)
+        resolve({ title: title || url, icon: iconUrl })
       })
       .catch(() => {
-        resolve({ title: url })
+        resolve({ title: url, icon: null })
       })
   })
 }
