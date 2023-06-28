@@ -12,8 +12,8 @@
     "@element-plus/nuxt": "^1.0.5",
     "@nuxt/devtools": "latest",
     "@types/node": "^18",
-    "nuxt": "^3.5.2",
-    "sass": "^1.63.4"
+    "nuxt": "^3.6.1",
+    "sass": "^1.63.6"
   },
   "dependencies": {
     "@vercel/kv": "^0.2.1",
