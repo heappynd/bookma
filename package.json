@@ -17,10 +17,6 @@
   },
   "dependencies": {
     "@vercel/kv": "^0.2.1",
-    "axios": "^1.4.0",
-    "cheerio": "1.0.0-rc.12",
-    "lowdb": "^6.0.1",
-    "nanoid": "^4.0.2",
-    "normalize.css": "^8.0.1"
+    "nanoid": "^4.0.2"
   }
 }
