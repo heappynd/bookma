@@ -2,14 +2,8 @@
   <div>
     <div class="d-container">
       <div style="display: flex">
-        <div
-          v-for="dir in dirs"
-          :key="dir.id"
-          :class="['d-item', { 'd-item--active': dir.id === form2.dir_id }]"
-          @click="form2.dir_id = dir.id"
-          @drop="(event) => onDrop(event, dir.id)"
-          @dragover="onDragover"
-        >
+        <div v-for="dir in dirs" :key="dir.id" :class="['d-item', { 'd-item--active': dir.id === form2.dir_id }]"
+          @click="form2.dir_id = dir.id" @drop="(event) => onDrop(event, dir.id)" @dragover="onDragover">
           <ElSpace>
             <span>{{ dir.name }}</span>
             <ElIcon style="cursor: pointer" @click="delDir(dir.id)">
@@ -23,23 +17,18 @@
       </ElIcon>
     </div>
 
-    <ElButton
-      style="position: fixed; z-index: 999; bottom: 100px; right: 100px"
-      type="primary"
-      @click="visible2 = true"
-    >
+    <ElButton style="position: fixed; z-index: 999; bottom: 100px; right: 100px" type="primary" @click="visible2 = true">
       添加网页...
+    </ElButton>
+
+    <ElButton style="position: fixed; z-index: 999; bottom: 100px; right: 200px" type="primary" @click="openAll">
+      全部打开
     </ElButton>
 
     <!-- <ElScrollbar v-loading="loading" height="88vh"> -->
     <ul v-if="marks.length" class="m-container">
-      <li
-        class="m-item"
-        v-for="mark in marks"
-        :key="mark.id"
-        :draggable="true"
-        @dragstart="(event) => onDragstart(event, mark)"
-      >
+      <li class="m-item" v-for="mark in marks" :key="mark.id" :draggable="true"
+        @dragstart="(event) => onDragstart(event, mark)">
         <a :href="mark.href" target="_blank">{{ mark.text }}</a>
         <ElIcon @click="del2(mark.id)">
           <CloseBold />
@@ -52,11 +41,7 @@
     <ClientOnly>
       <ElDialog v-model="visible" title="新建文件夹" :width="500">
         <ElForm ref="formRef" :model="form" label-width="80px">
-          <ElFormItem
-            label="名称"
-            prop="name"
-            :rules="[{ required: true, trigger: 'change' }]"
-          >
+          <ElFormItem label="名称" prop="name" :rules="[{ required: true, trigger: 'change' }]">
             <ElInput v-model="form.name" />
           </ElFormItem>
         </ElForm>
@@ -70,11 +55,7 @@
     <ClientOnly>
       <ElDialog v-model="visible2" title="修改书签" :width="500">
         <ElForm ref="formRef2" :model="form2" label-width="80px">
-          <ElFormItem
-            label="网址"
-            prop="href"
-            :rules="[{ required: true, trigger: 'change' }]"
-          >
+          <ElFormItem label="网址" prop="href" :rules="[{ required: true, trigger: 'change' }]">
             <ElInput v-model="form2.href" />
           </ElFormItem>
         </ElForm>
@@ -124,7 +105,7 @@ const ok = async () => {
     visible.value = false;
     await refresh();
     ElMessage.success("新建文件夹成功");
-  } catch (error) {}
+  } catch (error) { }
 };
 const cancel = () => {
   visible.value = false;
@@ -145,7 +126,7 @@ const ok2 = async () => {
     visible2.value = false;
     await getData();
     ElMessage.success("修改书签成功");
-  } catch (error) {}
+  } catch (error) { }
 };
 const cancel2 = () => {
   visible2.value = false;
@@ -191,6 +172,12 @@ const onDragover = (event: DragEvent) => {
 const onDragstart = (event: DragEvent, mark: Mark) => {
   event.dataTransfer?.setData("text/plain", mark.href);
 };
+
+const openAll = () => {
+  marks.value.forEach(mark => {
+    window.open(mark.href, '_blank')
+  })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -198,6 +185,7 @@ const onDragstart = (event: DragEvent, mark: Mark) => {
   margin: 0;
   padding: 0;
   list-style: none;
+
   .m-item {
     background: ghostwhite;
     padding: 15px 20px;
@@ -224,6 +212,7 @@ const onDragstart = (event: DragEvent, mark: Mark) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .d-item {
     line-height: 38px;
     padding: 0 20px;
