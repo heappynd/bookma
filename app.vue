@@ -4,8 +4,7 @@
       <UCard>
         <template #header>
           <div class="text-black/85 font-bold">新增书签</div>
-          <NuxtPage />
-</template>
+        </template>
         <template #default>
           <div class="p-4">
             <UForm
